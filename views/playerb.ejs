@@ -1,0 +1,1044 @@
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+	<head>
+
+		<title>Ping Pong </title>
+		<base href="http://localhost:8080/coded/pingpong/">
+		<meta charset="utf8">
+		<link href="../static/css/style.css" rel="stylesheet" type="text/css" />
+		<link href='http://fonts.googleapis.com/css?family=Satisfy' rel='stylesheet' type='text/css'>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.js" type="text/javascript"></script>
+		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+        <script src="js/pb.js" type="text/javascript"></script>
+	    <script src="js/jquery.timers-1.2.js" type="text/javascript"></script>
+		<style>
+		body {
+	
+	background-image: url("images/grunge1.png");
+	margin: 0 auto;
+
+}
+
+.float-left {
+	
+	float:left
+
+}
+
+.float-right {
+	
+	float:right
+
+}
+
+.clear-both{
+
+	clear:both
+
+}
+
+header, footer {
+	
+	margin:5px auto;
+	text-align:center
+
+}
+
+header {
+	
+	height:100px;
+	text-shadow: 0.3em 0.3em 0.5em black;
+	font-family: 'Satisfy', cursive;
+	color:/*#d9ed7a*/#24a7c8
+
+}
+
+h1 {
+	
+	margin:15px 0;
+	-webkit-transform:rotate(-5deg);
+	-moz-transform:rotate(-5deg);
+	-o-transform:rotate(-5deg);
+	-ms-transform:rotate(-5deg);
+	transform:rotate(-5deg);
+	font-size:3.4em
+
+}
+
+#stuff {
+
+	position:relative
+
+}
+
+#playground {
+
+	background:#daeff5 url("images/playground.png");
+	width:600px;
+	height:300px;
+	position:relative;
+	overflow:hidden;
+	border-radius:5px;
+	border:2px solid #ffffff
+	
+}
+
+#ball {
+
+	background:#d9ed7a;
+	position:absolute;
+	width:20px;
+	height:20px;
+	left:290px;
+	top:140px;
+	border-radius:10px;
+	border:1px solid #000000
+
+}
+
+.paddle {
+
+	background:#d5d3d3;
+	position:absolute;
+	left:50px;
+	top:115px;
+	width:15px;
+	height:70px;
+	border-radius:5px;
+	border:1px solid #000000
+
+}
+
+#paddleB {
+
+	left:535px
+
+}
+
+#gameover, #pausegame {
+
+	display:none;
+	background:url("images/grunge.png") center center repeat;
+	position:absolute;
+	top:90px;
+	left:180px;
+	text-align:center;
+	color:#000111;
+	font-weight:bold;
+	opacity:.8;
+	width:250px;
+	height:100px;
+	border-radius:5px;
+	border:1px solid #000000
+
+}
+
+#gameover p, #pausegame p {
+
+	opacity:1
+
+}
+
+#gameover p {
+	padding-top:22px
+	}
+
+/*CSS3 style*/
+
+.tooltip {
+	
+	position:relative;
+	background:#fcfcfc;
+	cursor:help;
+	display:inline-block;
+	text-decoration:none;
+	color:#222;
+	outline:none;
+	border:1px solid #c4d9df;
+	border-radius:5px;
+	opacity:.9
+
+}
+
+form.tooltip {
+	
+	background:transparent;
+	border:none
+
+}
+
+form.tooltip span {
+
+	color:#24a7c8;
+	font-weight:bold;
+	font-size:1.2em;
+
+}
+	
+.tooltip span.tool {
+
+	visibility:hidden;
+	position:absolute;
+	bottom:60px;
+	left:50%;
+	z-index:999;
+	width:220px;
+	margin-left:-120px;
+	padding:10px;
+	border:2px solid #cccccc;
+	background-color:#ddd;
+	background-image:-webkit-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+	background-image:-moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+	background-image:-ms-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+	background-image:-o-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+	background-image:linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+	-moz-border-radius:5px;
+	border-radius:5px;
+	-moz-box-shadow:0 1px 2px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.5) inset;
+	-webkit-box-shadow:0 1px 2px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.5) inset;
+	box-shadow:0 1px 2px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.5) inset;
+	text-shadow:0 1px 0 rgba(255,255,255,.4);
+	font-size:14px
+
+}
+
+.tooltip:hover {
+
+	_border:0; /* IE6 fix */
+
+}
+
+.tooltip:hover span.tool {
+
+	visibility:visible;
+
+}
+
+.tooltip span.tool:before,
+.tooltip span.tool:after {
+
+	content:"";
+	position:absolute;
+	z-index:1000;
+	bottom:-7px;
+	left:50%;
+	margin-left:-8px;
+	border-top:8px solid #ddd;
+	border-left:8px solid transparent;
+	border-right:8px solid transparent;
+	border-bottom:0;
+
+}
+
+.tooltip span.tool:before {
+
+	border-top-color: #cccccc;
+	bottom: -8px;
+
+}
+
+.button {
+
+	display:inline-block;
+	white-space:nowrap;
+	background-color:#ccc;
+	background-image:-webkit-gradient(linear, left top, left bottom, from(#eee), to(#ccc));
+	background-image:-webkit-linear-gradient(top, #eee, #ccc);
+	background-image:-moz-linear-gradient(top, #eee, #ccc);
+	background-image:-ms-linear-gradient(top, #eee, #ccc);
+	background-image:-o-linear-gradient(top, #eee, #ccc);
+	background-image:linear-gradient(top, #eee, #ccc);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee', EndColorStr='#cccccc');
+	border:1px solid #777;
+	padding:4px 15px;
+	margin:5px 15px;
+	font:bold 15px Trebuchet MS, Arial, Helvetica sans-serif;
+	color:#24a7c8;
+	text-decoration:none;
+    text-shadow:0 1px 0 rgba(255,255,255,.8);
+    -moz-border-radius:6px;
+	-ms-border-radius:6px;
+	-o-border-radius:6px;
+    -webkit-border-radius:6px;
+	border-radius:6px;
+	-moz-box-shadow:0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+	-o-box-shadow:0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+	-webkit-box-shadow:0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+	box-shadow:0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+	cursor:pointer
+
+}
+
+.button:hover {
+
+	background-color:#ddd;
+	background-image:-webkit-gradient(linear, left top, left bottom, from(#fafafa), to(#ddd));
+	background-image:-webkit-linear-gradient(top, #fafafa, #ddd);
+	background-image:-moz-linear-gradient(top, #fafafa, #ddd);
+	background-image:-ms-linear-gradient(top, #fafafa, #ddd);
+	background-image:-o-linear-gradient(top, #fafafa, #ddd);
+	background-image:linear-gradient(top, #fafafa, #ddd);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#fafafa', EndColorStr='#dddddd');
+	color:#444
+
+}
+
+.button:active {
+
+	-moz-box-shadow:0 0 4px 2px rgba(0,0,0,.3) inset;
+	-webkit-box-shadow:0 0 4px 2px rgba(0,0,0,.3) inset;
+	box-shadow:0 0 4px 2px rgba(0,0,0,.3) inset;
+	position:relative;
+	top:1px;
+
+}
+
+.button:focus {
+
+	outline:0;
+	background:#fafafa;
+
+}
+
+.button:before {
+
+	background:#ccc;
+	background:rgba(0,0,0,.1);
+	float:left;
+	width:1em;
+	text-align:center;
+	font-size:1.5em;
+	margin:0 1em 0 -1em;
+	padding:0 .2em;
+	-moz-box-shadow:1px 0 0 rgba(0,0,0,.5), 2px 0 0 rgba(255,255,255,.5);
+	-webkit-box-shadow:1px 0 0 rgba(0,0,0,.5), 2px 0 0 rgba(255,255,255,.5);
+	box-shadow:1px 0 0 rgba(0,0,0,.5), 2px 0 0 rgba(255,255,255,.5);
+	-moz-border-radius:.15em 0 0 .15em;
+	-webkit-border-radius:.15em 0 0 .15em;
+	border-radius:.15em 0 0 .15em;
+	pointer-events:none;
+
+}
+
+/* Hexadecimal entities for the icons */
+/*
+.save:before {
+	content:"\2714";
+}
+*/
+/*Box slick effect*/
+
+#game {
+
+	position:relative;
+	width:605px;
+	background:#519fb5;
+	-moz-border-radius:8px;
+	border-radius:8px;
+	padding:12px 15px;
+	color:rgba(0,0,0, .8);
+	text-shadow:0 1px 0 #fff;
+	line-height:1.5;
+	margin:10px auto;
+	
+}
+
+#game:before, #game:after {
+
+	z-index:-1;
+	position:absolute;
+	content:"";
+	bottom:15px;
+	left:10px;
+	width:50%;
+	top:80%;
+	max-width:300px;
+	background:rgba(0, 0, 0, 0.7);
+	-webkit-box-shadow:0 15px 10px rgba(0,0,0, 0.7);
+	-moz-box-shadow:0 15px 10px rgba(0, 0, 0, 0.7);
+	box-shadow:0 15px 10px rgba(0, 0, 0, 0.7);
+	-webkit-transform:rotate(-3deg);
+	-moz-transform:rotate(-3deg);
+	-o-transform:rotate(-3deg);
+	-ms-transform:rotate(-3deg);
+	transform:rotate(-3deg);
+
+}
+
+#game:after {
+
+	-webkit-transform:rotate(3deg);
+	-moz-transform:rotate(3deg);
+	-o-transform:rotate(3deg);
+	-ms-transform:rotate(3deg);
+	transform:rotate(3deg);
+	right:10px;
+	left:auto;
+
+}
+
+#saveoptions {
+
+	background:#eaf8fc;
+	background-image:-moz-linear-gradient(#9cdeef, #1d7e96);
+	background-image:-o-linear-gradient(#9cdeef, #1d7e96);
+	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0, #1d7e96),color-stop(1, #9cdeef));
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#9cdeef', EndColorStr='#1d7e96');
+	-moz-border-radius:10px;
+	-o-border-radius:10px;
+	-ms-border-radius:10px;
+	border-radius:10px;
+	border-width:1px;
+	border-style:solid;
+	border-color:#c4d9df #a4c3ca #83afb7;
+	width:638px;
+	height:auto;
+	padding:5px 5px;
+	margin:20px auto;
+	overflow:hidden; /* Clear floats */
+	text-align:center
+
+}
+
+.short {
+
+	background:#fcfcfc;
+	width:40px;
+	height:20px;
+	text-indent:15px;
+	border-radius:5px;
+	font-weight:bold;
+	color:#24a7c8;
+	border:2px solid #777;
+
+}
+
+#saveoptions input {
+
+	text-align:center;
+	text-indent:0
+
+}
+
+#maxscore {text-indent:12px}
+
+#saveoptions label {
+
+	font:bold 15px Trebuchet MS, Arial, Helvetica sans-serif;
+	color:#efefef;
+	margin:0 0 0 5px
+}
+
+#scoreboard {
+
+	background:#daeff5 url("images/playground.png");
+	margin:0 auto;
+	padding:6px;
+	width:640px;
+	height:40px;
+	border:2px solid #83afb7;
+	border-radius:10px
+
+}
+
+#startgame {
+
+	text-align:center;
+	width:59%
+
+}
+
+.score {
+
+	/*text-shadow:1px 1px 3px #24a7c8;*/
+	font-family:'Satisfy', cursive;
+	text-align:center;
+	width:20%;
+	padding:5px 0;
+	font-size:1.1em;
+	font-weight:bold;
+	color:#4f4f4f
+
+}
+
+.score span {
+
+	color:#24a7c8;
+	font-weight:bold;
+	font-size:1.2em;
+	margin:1px 25px 0 3px;
+	display:block;
+	width:10px;
+	float:right;
+	font-family:Arial, Georgia, sans-serif;
+	text-shadow:none;
+
+}
+
+.score span.tooltip {
+
+	font-size:12px
+
+}
+
+span.green, form.tooltip span.green {
+
+	color:#8ba21e;
+	font-weight:bolder;
+	font-size:14px;
+	margin:0;
+	display:inline;
+	float:none
+
+}
+
+span.red {
+
+	color:#a6073e
+
+}
+		</style>
+	</head>
+	
+	<body>
+		
+		<header>
+			<h1>Ping Pong!</h1>
+		</header>
+
+	<div id="content">
+		<div id="stuff">
+			<div id="scoreboard">
+				<div class="score float-left tooltip">Player A: <span id="scoreA">00</span></div>
+				<div class="float-left" id="startgame">
+					<form class="tooltip" id="startbutton">
+						<button id="start" type="button" class="button" name="start">Start/Resume</button>
+						<span class="tool">Press button to Start the game and use <span class="green">Space bar</span> to Pause the game.</span>
+					</form>
+				</div>
+				<div class="score float-right tooltip">Player B: <span id="scoreB">00</span><span class="tool">To move paddle use <span class="green">UP</span> key for going UP and <span class="green">DOWN</span> key for going DOWN.</span></div>
+			</div>
+			<div id="game">
+				<div id="playground">
+					<div id="paddleA" class="paddle"></div>
+					<div id="paddleB" class="paddle"></div>
+					<div id="ball"></div>
+					<div id="pausegame">
+						<p>The game is paused.<br /> Click the <span class="red">Start/Resume</span> button to resume the game</p>
+					</div>
+					<div id="gameover">
+						<p><span class="red">GAME OVER!</span></p>
+					</div>
+					<div class="clear-both"></div>
+				</div>
+			</div>
+			<div id="options">
+				<form id="saveoptions">
+					<label for="ballspeed">Ball Speed: </label> <input id="ballspeed" class="short" type="text" maxlength="1" name="ballspeed" value="6">
+					<label for="maxscore">Max Score: </label><input id="maxscore" class="short" type="text" maxlength="2" name="maxscore" value="09">
+					<label for="paddlespeed">Paddle Speed: </label><input id="paddlespeed" class="short" type="text" maxlength="1" name="paddlespeed" value="3">
+				</form>
+			</div>
+		</div>
+		<div class="clear-both"></div>
+	</div>
+	
+	<script>
+
+
+jQuery.fn.extend({
+	everyTime: function(interval, label, fn, times) {
+		return this.each(function() {
+			jQuery.timer.add(this, interval, label, fn, times);
+		});
+	},
+	oneTime: function(interval, label, fn) {
+		return this.each(function() {
+			jQuery.timer.add(this, interval, label, fn, 1);
+		});
+	},
+	stopTime: function(label, fn) {
+		return this.each(function() {
+			jQuery.timer.remove(this, label, fn);
+		});
+	}
+});
+
+jQuery.extend({
+	timer: {
+		global: [],
+		guid: 1,
+		dataKey: "jQuery.timer",
+		regex: /^([0-9]+(?:\.[0-9]*)?)\s*(.*s)?$/,
+		powers: {
+			// Yeah this is major overkill...
+			'ms': 1,
+			'cs': 10,
+			'ds': 100,
+			's': 1000,
+			'das': 10000,
+			'hs': 100000,
+			'ks': 1000000
+		},
+		timeParse: function(value) {
+			if (value == undefined || value == null)
+				return null;
+			var result = this.regex.exec(jQuery.trim(value.toString()));
+			if (result[2]) {
+				var num = parseFloat(result[1]);
+				var mult = this.powers[result[2]] || 1;
+				return num * mult;
+			} else {
+				return value;
+			}
+		},
+		add: function(element, interval, label, fn, times) {
+			var counter = 0;
+			
+			if (jQuery.isFunction(label)) {
+				if (!times) 
+					times = fn;
+				fn = label;
+				label = interval;
+			}
+			
+			interval = jQuery.timer.timeParse(interval);
+
+			if (typeof interval != 'number' || isNaN(interval) || interval < 0)
+				return;
+
+			if (typeof times != 'number' || isNaN(times) || times < 0) 
+				times = 0;
+			
+			times = times || 0;
+			
+			var timers = jQuery.data(element, this.dataKey) || jQuery.data(element, this.dataKey, {});
+			
+			if (!timers[label])
+				timers[label] = {};
+			
+			fn.timerID = fn.timerID || this.guid++;
+			
+			var handler = function() {
+				if ((++counter > times && times !== 0) || fn.call(element, counter) === false)
+					jQuery.timer.remove(element, label, fn);
+			};
+			
+			handler.timerID = fn.timerID;
+			
+			if (!timers[label][fn.timerID])
+				timers[label][fn.timerID] = window.setInterval(handler,interval);
+			
+			this.global.push( element );
+			
+		},
+		remove: function(element, label, fn) {
+			var timers = jQuery.data(element, this.dataKey), ret;
+			
+			if ( timers ) {
+				
+				if (!label) {
+					for ( label in timers )
+						this.remove(element, label, fn);
+				} else if ( timers[label] ) {
+					if ( fn ) {
+						if ( fn.timerID ) {
+							window.clearInterval(timers[label][fn.timerID]);
+							delete timers[label][fn.timerID];
+						}
+					} else {
+						for ( var fn in timers[label] ) {
+							window.clearInterval(timers[label][fn]);
+							delete timers[label][fn];
+						}
+					}
+					
+					for ( ret in timers[label] ) break;
+					if ( !ret ) {
+						ret = null;
+						delete timers[label];
+					}
+				}
+				
+				for ( ret in timers ) break;
+				if ( !ret ) 
+					jQuery.removeData(element, this.dataKey);
+			}
+		}
+	}
+});
+
+jQuery(window).bind("unload", function() {
+	jQuery.each(jQuery.timer.global, function(index, item) {
+		jQuery.timer.remove(item);
+	});
+});
+	$(function() {
+	
+	if ($.browser.msie && $.browser.version.substr(0,1)<7){
+		
+		$(".tooltip").mouseover(function(){
+		
+			$(this).children("span.tool").show();
+		
+		}).mouseout(function(){
+			
+			$(this).children("span.tool").hide();
+			
+			})
+
+	}
+
+});
+
+//Target Firefox to modify button appearance
+if ($.browser.mozilla) {
+
+	$("#start").ejs("Start game")
+
+}
+
+//initializing values for game engine
+var KEY = {UP:38, DOWN:40, Space:32};
+var socket = io.connect('http://localhost:8080');
+var pingpong = {scoreA:0, scoreB:0};
+var id = '';
+var startgame = 0;
+
+pingpong.pressedKeys = [];
+
+//when "Save" button is clicked perform some checks for input values
+$('#save').click(function(){
+		
+		var ballSpeed = $("#ballspeed").val();
+		var maxScore = $("#maxscore").val();
+		var paddleSpeed = $("#paddlespeed").val();
+		var regex = /[1-9]/;
+		var regex1 = /\d{2}/;
+		
+		if (ballSpeed.match(regex)){
+			
+			$("#ballspeed").attr("value", ballSpeed);
+		
+		}
+		else {
+			
+			alert("For Ball Speed value please insert only digits, range 1-9.")
+		
+		}
+		
+		if (paddleSpeed.match(regex)){
+				
+			$("#paddlespeed").attr("value", paddleSpeed);
+		
+		}
+		else {
+			
+			alert("For Paddle Speed value please insert only digits, range 1-9.")
+		}
+		
+		if (maxScore.match(regex1) && maxScore != "00"){
+			
+			$("#maxscore").attr("value", maxScore);
+		
+		}
+		else {
+		
+			alert("For Max Score please insert only digits, range 00-99. The number must have a length of two digits and should be diffrent from 00.")
+		
+		}
+
+});
+
+// on connection to server, ask for user's name with an anonymous callback
+socket.on('connect', function(socket){
+
+		console.log("Connected to Server: All systems go!");
+
+});
+
+socket.on('myid', function(id){
+	
+	myid = id;
+	console.log("my id: " + myid);
+	
+});
+
+socket.on('updateBall', function(x, y){
+	
+	console.log("coordinates: " + x +" "+ y);
+	
+	moveBall(x, y);
+	
+});
+
+socket.on('updateScore', function(scorea, scoreb){
+	
+	console.log("scores: " + scorea +" "+ scoreb);
+	
+	$("#scoreA").html(scorea);
+	$("#scoreB").html(scoreb);
+	
+});
+
+socket.on('updateAttributes', function(ballspeed, maxscore, paddlespeed){
+	
+	console.log("addtributes: " + ballspeed +" "+ maxscore +" "+paddlespeed);
+	
+	$("#ballspeed").attr("value", ballspeed);
+	$("#paddlespeed").attr("value", paddlespeed);
+	$("#maxscore").attr("value", maxscore);
+});
+
+socket.on('updatePaddle', function(position){
+	
+	console.log("moving paddle A: " + position);
+	
+	$("#paddleA").css("top", position);
+	
+});
+
+socket.on('endgame', function(signal){
+	
+	console.log("Game Over!");
+	
+	pingpong.scoreA = "00";
+	$("#scoreA").html(pingpong.scoreA);
+	pingpong.scoreB = "00";
+	$("#scoreB").html(pingpong.scoreB);
+		
+	$("#gameover").show("slow");
+	
+	//clear timer, show "Start/Resume game" button
+	$(this).stopTime("start");
+	$("#start").removeAttr("disabled");
+	$("#startbutton").show("fast");
+	
+	startgame = 0;
+	
+});
+
+socket.on('start', function(value){
+
+	startgame++;
+	
+	if(startgame == 2){
+	
+		if($("#gameover").css("display") == "block") {
+		
+			$("#gameover").hide("fast")
+		
+		};
+		
+		if($("#pausegame").css("display") == "block") {
+		
+			$("#pausegame").hide("fast")
+		
+		};
+	
+		//set timer for game engine loop and hide button to prevent future clicks
+		$(this).everyTime(40, "start", gameLoop);
+		$("#startbutton").hide("slow");
+		
+	}
+	
+	console.log("Player A is ready!");
+	
+});
+
+socket.on('pause', function(value){
+console.log("paused");
+	if ($.browser.mozilla) {
+		
+			alert("Player A paused the game.\n");
+		
+	}
+	else {
+			
+		$("#pausegame").show("slow");
+		$("#start").removeAttr("disabled");
+		$("#startbutton").show("fast");
+		$(this).stopTime("start");
+		
+	};
+	
+	startgame--;
+	
+});
+
+$(function() {
+
+	//mark down in array which key is pressed
+	$(document).keydown(function(e){
+
+		pingpong.pressedKeys[e.which] = true;
+
+	});
+
+	$(document).keyup(function(e){
+
+		pingpong.pressedKeys[e.which] = false;
+
+	}); 
+	   
+	//"click" event for "Start/Resume game" button
+	$("#start").click(function() {
+	
+		startgame++;
+		
+		$("#startbutton").hide("slow");
+		
+		if(startgame == 2){
+			
+			if($("#gameover").css("display") == "block") {
+			
+				$("#gameover").hide("fast")
+			
+			};
+			
+			if($("#pausegame").css("display") == "block") {
+			
+				$("#pausegame").hide("fast")
+			
+			};
+		
+			//set timer for game engine loop and hide button to prevent future clicks
+			$(this).everyTime(40, "start", gameLoop);
+
+		}
+		else
+			alert("Waiting for the other player to join.");
+		
+		socket.emit('start', myid, 1);
+	
+	});
+
+});
+
+function gameLoop() {
+
+	movePaddles();
+	
+	//get the values of "maxscore" input element
+	var maxScore = $("#maxscore").val();
+	
+	//check the length and based of some criteria update the maxscore input value
+	if (maxScore.length == 1){ 
+				
+		if (isNaN(maxScore) === true){
+					
+			maxScore = 5;
+				
+		}
+		else {
+				
+			maxScore = "" + 0 + maxScore;
+
+		}
+	
+	}
+	else {
+	
+		if (isNaN(maxScore) === true){
+			
+			maxScore = 5;
+			
+		}
+		else {
+			
+			maxScore = maxScore;
+		}
+	
+	};
+	
+	//Pause the game (clear timer) if Space bar is pressed and display message how to resume game and "Start/Resume game" button		
+	if (pingpong.pressedKeys[KEY.Space]) {
+		
+		if ($.browser.mozilla) {
+		
+			socket.emit('pause', myid, 1);
+			alert("The game is paused. \n Click the OK to resume the game.");
+		
+		}
+		else {
+			
+			$("#pausegame").show("slow");
+			$("#start").removeAttr("disabled");
+			$("#startbutton").show("fast");
+			socket.emit('pause', myid, 1);
+			$(this).stopTime("start");
+		
+		};
+		
+	};
+	
+	//perform checks for "maxscore" value and perform actions based on returned boolean value for "Game over!" situation
+	if ((pingpong.scoreA == maxScore && pingpong.scoreA != 0) || (pingpong.scoreB == maxScore && pingpong.scoreB != 0)) {
+	
+		//print message for game over, reset score and stop the game loop
+		$("#gameover").show("slow");
+		pingpong.scoreA = "00";
+	
+		$("#scoreA").html(pingpong.scoreA);
+		pingpong.scoreB = "00";
+	
+		$("#scoreB").html(pingpong.scoreB);
+	
+		//clear timer, show "Start/Resume game" button
+		$(this).stopTime("start");
+		$("#start").removeAttr("disabled");
+		$("#startbutton").show("fast");
+	
+	};
+
+};
+
+//how to move the right and left paddles
+function movePaddles() {
+
+	var paddleSpeed = parseInt($("#paddlespeed").val());
+
+	//use our custom timer to continously check if a key is pressed
+	if (pingpong.pressedKeys[KEY.UP]) {
+
+		//move the paddle B up based on "Paddle Speed" input value
+		var top = parseInt($("#paddleB").css("top"));
+		if (top >= -parseInt($("#paddleB").css("height"))/2) {
+	
+			$("#paddleB").css("top", top - paddleSpeed);
+			
+			socket.emit('updatePaddle', myid, top - paddleSpeed);
+	
+		}
+	
+	};
+	
+	if (pingpong.pressedKeys[KEY.DOWN]) {
+	
+		//move the paddle B down based on "Paddle Speed" input value
+		var top = parseInt($("#paddleB").css("top"));
+	
+		if (top <= (parseInt($("#playground").css("height")) - (parseInt($("#paddleB").css("height")))/2)) {
+	
+			$("#paddleB").css("top", top + paddleSpeed);
+			
+			socket.emit('updatePaddle', myid, top + paddleSpeed);
+	
+		}
+	
+	};
+	
+};
+
+function moveBall(x, y) {
+	
+	//actually move the ball with speed and direction
+	$("#ball").css({"left": x, "top": y});
+	
+};
+	</script>
+	</body>
+
+</html>
